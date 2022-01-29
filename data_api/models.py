@@ -239,9 +239,9 @@ def create_database() -> None:
     engine = sqlalchemy.create_engine("sqlite:///:memory:", echo=True)
     Base.metadata.create_all(engine)
 
-    Session = sqlalchemy.orm.sessionmaker()
-    Session.configure(bind=engine)
-    session = Session()
+    session_maker = sqlalchemy.orm.sessionmaker()
+    session_maker.configure(bind=engine)
+    session = session_maker()
     session.commit()
 
 
