@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import enum
+import os
 import textwrap
 from typing import List
 
+import pg8000
 import sqlalchemy
 import sqlalchemy.orm
+from google.cloud.sql.connector import connector
 from sqlalchemy.orm.decl_api import DeclarativeMeta
 
 mapper_registry = sqlalchemy.orm.registry()
@@ -237,8 +240,22 @@ class Credit(Base):
         )
 
 
-def create_database() -> sqlalchemy.orm.session.Session:
-    engine = sqlalchemy.create_engine("sqlite:///:memory:", echo=True)
+def init_google_postgres_connection_engine(
+    user: str, password: str, database: str, connection_name: str
+) -> sqlalchemy.engine.Engine:
+    def getconn() -> pg8000.dbapi.Connection:
+        conn: pg8000.dbapi.Connection = connector.connect(
+            connection_name, "pg8000", user=user, password=password, db=database
+        )
+        return conn
+
+    engine = sqlalchemy.create_engine("postgresql+pg8000://", creator=getconn)
+    engine.dialect.description_encoding = None
+
+    return engine
+
+
+def create_database(engine: sqlalchemy.engine.Engine) -> sqlalchemy.orm.session.Session:
     Base.metadata.create_all(engine)
 
     session_maker = sqlalchemy.orm.sessionmaker()

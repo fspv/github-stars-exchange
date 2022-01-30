@@ -4,3 +4,4 @@ flask
 flask-sqlalchemy
 GitHub-Flask
 google-cloud-secret-manager
+cloud-sql-python-connector[pg8000]
