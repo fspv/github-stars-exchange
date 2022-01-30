@@ -42,7 +42,9 @@ class User(Base):
     # to a github account
     # TODO: Check how Github auth works and look for the best set of fields
     # to authenticate the user
-    auth_token = sqlalchemy.Column(sqlalchemy.String)
+    github_id = sqlalchemy.Column(sqlalchemy.String)
+    github_login = sqlalchemy.Column(sqlalchemy.String)
+    github_access_token = sqlalchemy.Column(sqlalchemy.String)
 
     jobs: sqlalchemy.orm.Mapped[List[Job]] = (
         sqlalchemy.orm.relationship("Job", back_populates="user")
@@ -156,7 +158,7 @@ class Campaign(Base):
 
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
     user: sqlalchemy.orm.Mapped[User] = (
-        sqlalchemy.orm.relationship("User", back_populates="jobs")
+        sqlalchemy.orm.relationship("User", back_populates="campaigns")
     )
 
     jobs: sqlalchemy.orm.Mapped[List[Job]] = (
@@ -204,7 +206,7 @@ class Credit(Base):
 
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
     user: sqlalchemy.orm.Mapped[User] = sqlalchemy.orm.relationship(
-        "User", back_populates="jobs"
+        "User", back_populates="credits"
     )
 
     # TODO: Remove two fields below (not needed)
@@ -235,7 +237,7 @@ class Credit(Base):
         )
 
 
-def create_database() -> None:
+def create_database() -> sqlalchemy.orm.session.Session:
     engine = sqlalchemy.create_engine("sqlite:///:memory:", echo=True)
     Base.metadata.create_all(engine)
 
@@ -244,5 +246,4 @@ def create_database() -> None:
     session = session_maker()
     session.commit()
 
-
-create_database()
+    return session

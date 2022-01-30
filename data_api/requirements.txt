@@ -1,2 +1,6 @@
 sqlalchemy
 sqlalchemy[mypy]
+flask
+flask-sqlalchemy
+GitHub-Flask
+google-cloud-secret-manager
